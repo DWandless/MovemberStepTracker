@@ -1,43 +1,62 @@
 import streamlit as st
+import json
+import hashlib
+import os
 
-# Demo credentials (keep in sync with pages/Admin.py or move to a shared module)
-CREDENTIALS = {"alice": "password123", "bob": "hunter2"}
+CREDENTIALS_FILE = "credentials.json"
 
-def authenticate(user: str, pwd: str) -> bool:
-    return CREDENTIALS.get(user) == pwd
+# Load credentials
+def load_credentials():
+    if os.path.exists(CREDENTIALS_FILE):
+        with open(CREDENTIALS_FILE, "r") as f:
+            return json.load(f)
+    return {}
 
-def render():
-    st.title("Log in")
+# Hash password
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
-    # session defaults
-    if "logged_in" not in st.session_state:
-        st.session_state.logged_in = False
-    if "username" not in st.session_state:
-        st.session_state.username = ""
+def authenticate(username, password):
+    credentials = load_credentials()
+    if username in credentials and credentials[username]["password"] == hash_password(password):
+        return credentials[username]["role"]
+    return None
 
-    if st.session_state.logged_in:
-        st.info(f"Already logged in as **{st.session_state.username}**. Use the Pages menu to go to Admin.")
-        return
+st.title("Log In")
 
-    st.write("Enter your username and password to sign in.")
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "username" not in st.session_state:
+    st.session_state.username = ""
+if "role" not in st.session_state:
+    st.session_state.role = ""
 
+if st.session_state.logged_in:
+    st.info(f"Already logged in as **{st.session_state.username}** ({st.session_state.role}).")
+else:
     with st.form("login_form"):
-        user = st.text_input("Username", key="login_user")
-        pwd = st.text_input("Password", type="password", key="login_pwd")
-        submitted = st.form_submit_button("Log in")
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Log In")
 
     if submitted:
-        if authenticate(user, pwd):
+        role = authenticate(username, password)
+        if role:
             st.session_state.logged_in = True
-            st.session_state.username = user
-            st.session_state.pop("login_pwd", None)
-            st.success("Login successful — Please navigate to the Admin Page.")
+            st.session_state.username = username
+            st.session_state.role = role
+            st.success(f"Login successful! Role: {role}")
         else:
-            st.error("Invalid credentials")
+            st.error("Invalid username or password.")
 
-    # show logged-in user
-    if st.session_state.get("username"):
-        st.sidebar.markdown(f"**User:** {st.session_state.get('username')}")
+# Sidebar info
+if st.session_state.get("username"):
+    st.sidebar.markdown(f"**User:** {st.session_state.username} ({st.session_state.role})")
 
-# run UI when page is loaded
-render()
+# Logout button
+if st.button("Logout"):
+    st.session_state.clear()
+
+# Link to Sign-Up page
+st.markdown("---")
+st.markdown("Don't have an account? Signup")

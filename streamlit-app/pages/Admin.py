@@ -1,36 +1,56 @@
 import streamlit as st
-import time
+import os
+import shutil
+import zipfile
 
-def render():
-    # Ensure session defaults exist
-    if "logged_in" not in st.session_state:
-        st.session_state.logged_in = False
-    if "username" not in st.session_state:
-        st.session_state.username = ""
+# Require login and admin role
+if not st.session_state.get("logged_in"):
+    st.warning("Please log in first.")
+    st.stop()
 
-    # Protected: require login
-    if not st.session_state.get("logged_in"):
-        st.warning("You must be logged in to view this page.")
-        return
+if st.session_state.get("role") != "admin":
+    st.error("Access denied: Admins only.")
+    st.stop()
 
-    # Logged-in view
-    username = st.session_state.get("username", "user")
-    st.header(f"Hello {username}")
-    st.write("Protected admin content goes here.")
+st.title("Admin Dashboard")
+st.write("Manage data and access evidence folder.")
 
-    # show logged-in user
-    if st.session_state.get("username"):
-        st.sidebar.markdown(f"**User:** {st.session_state.get('username')}")
+DATA_FILE = "step_data.csv"
+UPLOAD_FOLDER = "uploads"
 
+# --- Download CSV ---
+st.subheader("Download Step Data")
+if os.path.exists(DATA_FILE):
+    with open(DATA_FILE, "rb") as f:
+        st.download_button("Download Step Data CSV", f, file_name="step_data.csv")
+else:
+    st.info("No step data file found.")
 
-    if st.button("Log out"):
-        st.session_state.logged_in = False
-        st.session_state.username = ""
-        # remove any login inputs left in session state
-        for key in ("login_user", "login_pwd", "prot_user", "prot_pwd"):
-            st.session_state.pop(key, None)
-        st.info("You have been logged out — Please refresh this window.")
-        st.stop()
+# --- Evidence Folder ---
+st.subheader("Evidence Folder")
+folder_path = os.path.abspath(UPLOAD_FOLDER)
+st.markdown(f"Path: `{folder_path}`")
 
-# Run when the page is loaded
-render()
+# --- Zip and Download Screenshots ---
+if os.path.exists(UPLOAD_FOLDER) and os.listdir(UPLOAD_FOLDER):
+    zip_path = "evidence.zip"
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        for root, _, files in os.walk(UPLOAD_FOLDER):
+            for file in files:
+                zipf.write(os.path.join(root, file), arcname=file)
+    with open(zip_path, "rb") as f:
+        st.download_button("Download All Evidence as ZIP", f, file_name="evidence.zip")
+else:
+    st.info("No evidence files found.")
+
+# --- Clear All Data ---
+st.subheader("Reset Challenge Data")
+if st.button("Clear All Data"):
+    # Remove CSV
+    if os.path.exists(DATA_FILE):
+        os.remove(DATA_FILE)
+    # Remove uploads
+    if os.path.exists(UPLOAD_FOLDER):
+        shutil.rmtree(UPLOAD_FOLDER)
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    st.success("All data cleared successfully!")
