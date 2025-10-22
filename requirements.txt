@@ -1,0 +1,14 @@
+streamlit
+pandas
+numpy
+matplotlib
+seaborn
+plotly
+scikit-learn
+requests
+streamlit-lottie
+supabase
+dotenv
+certifi
+httpx
+bcrypt
