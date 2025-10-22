@@ -1,0 +1,14 @@
+# Virtual environment
+venv/
+
+# Streamlit uploads
+uploads/
+
+# Sensitive files
+credentials.json
+evidence.zip
+step_data.csv
+
+# Python cache
+__pycache__/
+*.pyc
