@@ -115,7 +115,7 @@ if st.session_state.logged_in:
 
 # ------------------ SIGN-UP LINK ------------------
 st.markdown("---")
-st.page_link("pages/Signup.py", label="📝 Don't have an account? Sign up now")
+st.page_link("pages/1_Signup.py", label="📝 Don't have an account? Sign up now")
 
 # ------------------ FOOTER ------------------
 st.markdown("<div class='footer'>DXC Technology | Movember 2025</div>", unsafe_allow_html=True)

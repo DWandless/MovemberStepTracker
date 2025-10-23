@@ -114,16 +114,6 @@ if not user_id:
     st.error("User ID not found.")
     st.stop()
 
-# ------------------ HERO HEADER ------------------
-header_html = """
-<div class="header-container">
-    <div>
-        <div class="header-title">Movember Step Tracker 🥸</div>
-        <div class="header-subtitle">Grow a Mo, Track Your Steps, Save a Bro!</div>
-    </div>
-</div>
-"""
-st.markdown(header_html, unsafe_allow_html=True)
 
 # ------------------ SIDEBAR ------------------
 st.sidebar.markdown(f"<h3 style='color:#603494;'>Welcome, {username}!</h3>", unsafe_allow_html=True)

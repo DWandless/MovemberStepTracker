@@ -1,5 +1,12 @@
 import streamlit as st
 import os
+import pandas as pd
+import re
+import unicodedata
+import io
+import zipfile
+import streamlit as st
+import os
 import shutil
 import zipfile
 import io
@@ -9,8 +16,13 @@ import re
 import unicodedata
 import time
 
+from db import supabase
+
 # ------------------ CONFIG ------------------
 st.set_page_config(page_title="🔐 Admin Dashboard", layout="wide")
+
+if "confirm_clear" not in st.session_state:
+    st.session_state["confirm_clear"] = False
 
 # ------------------ DXC BRANDING & MOVEMBER CSS ------------------
 st.markdown("""
@@ -20,7 +32,6 @@ st.markdown("""
         font-family: 'Roboto', sans-serif;
         background-color: #FFFFFF;
     }
-    /* Hero Header */
     .header-container {
         display: flex;
         justify-content: flex-start;
@@ -39,7 +50,6 @@ st.markdown("""
         font-size: 18px;
         margin-top: 5px;
     }
-    /* Buttons */
     .stButton>button {
         background-color: #603494;
         color: white;
@@ -51,7 +61,6 @@ st.markdown("""
         background-color: #4a2678;
         transform: scale(1.05);
     }
-    /* Footer Carousel */
     .footer-carousel {
         text-align: center;
         font-size: 18px;
@@ -90,11 +99,9 @@ if not user_resp.data or not user_resp.data[0].get("user_admin", False):
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Initialize session state
+# ------------------ SESSION STATE INIT ------------------
 if "confirm_delete" not in st.session_state:
     st.session_state["confirm_delete"] = None
-if "confirm_clear" not in st.session_state:
-    st.session_state["confirm_clear"] = False
 
 # ------------------ HELPER FUNCTIONS ------------------
 def secure_filename(filename: str, max_length: int = 255) -> str:
@@ -132,7 +139,7 @@ if st.session_state["confirm_delete"] is not None and not df.empty:
             if st.button("✅ Yes, Delete"):
                 try:
                     supabase.table("forms").delete().eq("form_id", confirm_row["form_id"]).execute()
-                    safe_name = secure_filename(os.path.basename(str(confirm_row.get("form_filepath", ""))))
+                    safe_name = secure_filename(confirm_row.get("form_filepath", ""))
                     file_path = os.path.join(UPLOAD_FOLDER, safe_name)
                     if os.path.exists(file_path):
                         os.remove(file_path)
@@ -145,37 +152,41 @@ if st.session_state["confirm_delete"] is not None and not df.empty:
                 st.session_state["confirm_delete"] = None
                 st.rerun()
 
-# ------------------ 1. HIGH-STEP SUBMISSIONS (>15,000) ------------------
+# ------------------ HIGH-STEP SUBMISSIONS (>15,000) ------------------
 st.subheader("📊 Unverified Submissions (Steps > 15,000)")
 if not df.empty:
     for idx, row in df.iterrows():
         col1, col2, col3 = st.columns([1, 3, 2])
+        safe_name = secure_filename(row.get("form_filepath", ""))
+        file_path = os.path.join(UPLOAD_FOLDER, safe_name)
+
         with col1:
-            safe_name = secure_filename(os.path.basename(str(row.get("form_filepath", ""))))
-            file_path = os.path.join(UPLOAD_FOLDER, safe_name)
             if os.path.exists(file_path):
                 st.image(file_path, width=100)
+            else:
+                st.warning("No preview available")
+
         with col2:
             st.markdown(f"**Name:** {row['user_name']} | **Date:** {row['form_date']} | **Steps:** {row['form_stepcount']}")
             with st.expander("View Full Screenshot"):
                 if os.path.exists(file_path):
                     st.image(file_path, caption=f"Screenshot for {row['user_name']}", use_container_width=True)
                 else:
-                    st.warning("Screenshot not found.")
+                    st.warning("Screenshot not found. Check upload process.")
+
         with col3:
-            if st.button("✅ Verify", key=f"dismiss_{idx}"):
+            if st.button("✅ Verify", key=f"verify_{idx}"):
                 try:
-                    supabase.table("forms") \
-                        .update({"form_verified": True}) \
-                        .eq("form_id", row["form_id"]) \
-                        .execute()
+                    supabase.table("forms").update({"form_verified": True}).eq("form_id", row["form_id"]).execute()
                     st.success(f"Verified submission for {row['user_name']}")
                 except Exception as e:
                     st.error(f"Error verifying form: {e}")
                 st.rerun()
+
             if st.button("❌ Delete", key=f"delete_{idx}"):
                 st.session_state["confirm_delete"] = idx
                 st.rerun()
+
         st.markdown("---")
 else:
     st.info("No high-step unverified submissions found.")

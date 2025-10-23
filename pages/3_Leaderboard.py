@@ -71,9 +71,7 @@ st.markdown(header_html, unsafe_allow_html=True)
 
 # ------------------ LOGIN CHECK ------------------
 if not st.session_state.get("logged_in"):
-    st.warning("Please log in first.")
-    st.stop()
-
+    st.info("You are viewing the leaderboard as a guest. Log in to submit steps!")
 username = st.session_state.get("username", "Guest")
 
 # ------------------ FILTERS ------------------
