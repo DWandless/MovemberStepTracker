@@ -45,6 +45,14 @@
             "description": "We're celebrating the positive impact that small acts of kindness can have on both others and ourselves. To take part, reply to the Viva Engage post with a photograph of an act of kindness you've carried out and tell us what you did, why you chose to do it, and how it made you feel. Whether it's supporting a colleague, helping a friend, or doing something thoughtful for a stranger, we'd love to hear your story and see how even the smallest acts of kindness can make a meaningful difference.",
             "Reward": 15000,
             "Codes": []
+        },
+
+        "Challenge7": {
+            "id": "7",
+            "title": "AI Challenge 4: Create your own Spring into Summer Logo",
+            "description": "The final AI challenge is to create a unique logo for the “Spring into Summer” challenge using an AI image tool such as Copilot (https://m365.cloud.microsoft/create). Your design should capture the spirit of spring transitioning into summer, reflecting themes of energy, movement, wellbeing, positivity, growth, and fresh starts. Entries should be creative, clearly relevant to the theme, visually impactful, and—most importantly—practical and usable as a logo. Once you’ve created your design, add a comment containing a copy of your logo to the Viva Engage post, and an admin will respond with a claim code.",
+            "Reward": 15000,
+            "Codes": []
         }
 
 
