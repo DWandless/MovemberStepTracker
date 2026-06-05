@@ -53,6 +53,15 @@
             "description": "The final AI challenge is to create a unique logo for the “Spring into Summer” challenge using an AI image tool such as Copilot (https://m365.cloud.microsoft/create). Your design should capture the spirit of spring transitioning into summer, reflecting themes of energy, movement, wellbeing, positivity, growth, and fresh starts. Entries should be creative, clearly relevant to the theme, visually impactful, and—most importantly—practical and usable as a logo. Once you’ve created your design, add a comment containing a copy of your logo to the Viva Engage post, and an admin will respond with a claim code.",
             "Reward": 15000,
             "Codes": []
+        },
+
+        "Challenge8": {
+            "id": "8",
+            "title": "Pride Month Rainbow Walk",
+            "description": "Pride Month Rainbow Walk is here! In collaboration with our supportive partners UKI Wellness Matters & Spring into Summer challenge, we're inviting everyone to take part in our Rainbow Walk Pride Month bonus from 5th to 11th June. Whether you're already walking as part of Spring into Summer challenge, it's part of your daily routine, or you fancy winning a prize, this is your chance where every colour of the Pride Progress Intersex rainbow flag counts! It's simple: Get walking & snap a photo of each colour of the Pride Progress Intersex flag - get steps & win a prize! How to get involved: Join the UKI Pride Viva Engage Community, Get out walking, get creative with your pictures to snap the rainbow colours from the Pride Progress Intersex flag - there 10 in all - see the below image! Post your pictures in the UKI Pride Community. How to win: You must join the UKI Pride Viva Engage Community (We'll give you 2k steps bonus), Create max one post with all colours you can find between 5th - 11th June midday. Pride flags accepted so long as they are taken on a walk, however you'll get max 10k bonus steps for Spring into Summer and 1 entry in to the prize draw - Why? Well we want to see your creativity not just a fabulous Pride flag! For each separate colour from the flag you capture on a walk - you'll receive 2k steps bonus for Spring into Summer (max 20k) and an entry (max 10) in to our prize draw for the Everyone is Awesome Lego Prize. Prize available UKI only. Total bonus steps available - 22k. Good Luck - let's spread the rainbow!",
+            "Reward": 0,
+            "variable_reward": true,
+            "Codes": []
         }
 
 

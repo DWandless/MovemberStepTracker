@@ -23,6 +23,8 @@ def get_all_existing_codes(challenges: list[dict]) -> set[str]:
         for c in challenges[ch]["Codes"]:
             if isinstance(c, str):
                 existing.add(c.strip().upper())
+            elif isinstance(c, dict) and "hash" in c:
+                existing.add(c["hash"].strip().upper())
     return existing
 
 
@@ -152,7 +154,7 @@ def hash_claim_code(code: str) -> str:
     return hashlib.sha256(code.encode()).hexdigest()
 
 
-def validate_claim_code(challenges: list[dict], code: str, challenge_id: str) -> bool:
+def validate_claim_code(challenges: list[dict], code: str, challenge_id: str) -> tuple[bool, int]:
     """
     Validate a claim code against a specific challenge by comparing hashes.
     
@@ -162,12 +164,25 @@ def validate_claim_code(challenges: list[dict], code: str, challenge_id: str) ->
         challenge_id: The ID of the specific challenge to validate against
     
     Returns:
-        True if the code is valid for the specific challenge, False otherwise
+        Tuple of (is_valid: bool, reward: int)
+        - is_valid: True if the code is valid for the specific challenge
+        - reward: The reward amount (0 if invalid, from code if variable, from challenge if fixed)
     """
     code_hash = hash_claim_code(code)
     for challenge in challenges:
         if str(challenges[challenge]["id"]) == str(challenge_id):
-            if code_hash in challenges[challenge]["Codes"]:
-                return True
-            return False
-    return False
+            # Check if this is a variable reward challenge
+            is_variable = challenges[challenge].get("variable_reward", False)
+            
+            # Search for the code in the Codes list
+            for c in challenges[challenge]["Codes"]:
+                if isinstance(c, str) and c == code_hash:
+                    # Fixed reward code - return challenge's fixed reward
+                    return True, challenges[challenge].get("Reward", 0)
+                elif isinstance(c, dict) and c.get("hash") == code_hash:
+                    # Variable reward code - return the stored reward
+                    return True, c.get("reward", 0)
+            
+            # Code not found
+            return False, 0
+    return False, 0

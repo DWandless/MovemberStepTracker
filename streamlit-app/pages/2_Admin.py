@@ -234,6 +234,28 @@ with col_left:
     ChallengesDropdown = st.selectbox("Select Challenge", options=[Challenges[ch]["title"] for ch in Challenges])
     num_codes = st.number_input("Number of Claim Codes to Generate", min_value=1, max_value=100, value=5)
     
+    # Check if selected challenge has variable reward
+    selected_challenge_key = None
+    is_variable_reward = False
+    for ch in Challenges:
+        if Challenges[ch]["title"] == ChallengesDropdown:
+            selected_challenge_key = ch
+            is_variable_reward = Challenges[ch].get("variable_reward", False)
+            break
+    
+    # Show reward input for variable reward challenges
+    if is_variable_reward:
+        reward_amount = st.number_input(
+            "Reward Amount (steps)",
+            min_value=0,
+            max_value=50000,
+            value=2000,
+            step=500,
+            help="Enter the number of steps to award for each code generated for this challenge"
+        )
+    else:
+        reward_amount = None
+    
     if st.button("Generate Claim Codes"):
         if not ChallengesDropdown:
             st.error("Please select a challenge to generate claim codes for.")
@@ -251,7 +273,12 @@ with col_left:
             existing_codes.add(hash_claim_code(code))  # Add hash to avoid duplicates
 
         # Hash codes for storage
-        hashed_codes = [hash_claim_code(code) for code in generated_codes]
+        if is_variable_reward:
+            # Store as dict with hash and reward for variable reward challenges
+            hashed_codes = [{"hash": hash_claim_code(code), "reward": reward_amount} for code in generated_codes]
+        else:
+            # Store as simple hash string for fixed reward challenges
+            hashed_codes = [hash_claim_code(code) for code in generated_codes]
 
         # Read and update Challenges.json with proper path
         challenges_path = Path(__file__).resolve().parents[1] / ".streamlit" / "static" / "assets" / "Challenges.json"
@@ -270,7 +297,7 @@ with col_left:
                 json.dump(challenges_data, f, indent=4)
 
             st.session_state.generated_codes = generated_codes
-            log_audit_event("CODE_GENERATION", user_email, f"Challenge: {ChallengesDropdown}, Count: {num_codes}")
+            log_audit_event("CODE_GENERATION", user_email, f"Challenge: {ChallengesDropdown}, Count: {num_codes}, Reward: {reward_amount if is_variable_reward else 'Fixed'}")
         except Exception as e:
             st.error(f"Error generating codes: {str(e)}")
             logging.error(f"Code generation error: {e}")

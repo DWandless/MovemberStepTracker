@@ -280,7 +280,11 @@ with tab2:
             with left:
                 st.subheader(Challenges[ch]["title"])
                 st.write(Challenges[ch]["description"])
-                st.caption(f"Reward: {Challenges[ch]['Reward']:,} steps")
+                # Display reward - show "Variable" for variable reward challenges
+                if Challenges[ch].get("variable_reward", False):
+                    st.caption("Reward: Variable (based on code)")
+                else:
+                    st.caption(f"Reward: {Challenges[ch]['Reward']:,} steps")
 
             with right:
                 # Check if user has already completed this challenge
@@ -320,7 +324,8 @@ with tab2:
 
                     submitted = st.form_submit_button("Submit Code", type="primary")
                     if submitted:
-                        if not validate_claim_code(Challenges, claim_code, challenge_id):
+                        is_valid, challenge_reward = validate_claim_code(Challenges, claim_code, challenge_id)
+                        if not is_valid:
                             st.error("Please enter a valid claim code.")
                         else:
                             try:
@@ -332,7 +337,6 @@ with tab2:
                                     st.error("This code has already been used.")
                                 else:
                                     # Insert challenge completion into forms table
-                                    challenge_reward = Challenges[ch]['Reward']
                                     form_filepath = expected_filepath
                                     current_date = datetime.now().date()
                                     current_timestamp = datetime.now().isoformat()
@@ -347,7 +351,7 @@ with tab2:
                                         "challenge_code": code_hash
                                     }).execute()
                                     
-                                    log_audit_event("CHALLENGE_REDEMPTION", user_email, f"Challenge ID: {challenge_id}, Code used")
+                                    log_audit_event("CHALLENGE_REDEMPTION", user_email, f"Challenge ID: {challenge_id}, Reward: {challenge_reward}, Code used")
                                     st.session_state[toggle_key] = False
                                     st.rerun()
                             except Exception as e:
