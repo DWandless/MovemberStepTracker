@@ -514,9 +514,13 @@ with tab4:
                             total_steps = sum(f['form_stepcount'] for f in member_forms.data)
                             submission_count = len(member_forms.data)
                             
-                            # Calculate average daily steps
-                            if submission_count > 0:
-                                avg_daily_steps = total_steps / submission_count
+                            # Calculate average daily steps (group by date first)
+                            member_df = pd.DataFrame(member_forms.data)
+                            member_df["form_date"] = pd.to_datetime(member_df["form_date"]).dt.date
+                            daily_steps = member_df.groupby("form_date")["form_stepcount"].sum().reset_index()
+                            days_participated = len(daily_steps)
+                            if days_participated > 0:
+                                avg_daily_steps = daily_steps["form_stepcount"].mean()
                             else:
                                 avg_daily_steps = 0
                             
