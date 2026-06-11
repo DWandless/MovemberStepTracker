@@ -310,7 +310,7 @@ with col_left:
 with col_right:
     if st.session_state.generated_codes:
         codes_text = "\n".join(st.session_state.generated_codes)
-        st.text_area("Codes", codes_text, height=200, key="generated_codes_display")
+        st.text_area("Codes", codes_text, height=200)
 
 # ------------------ FOOTER (ALWAYS RENDER) ------------------
 render_footer()
