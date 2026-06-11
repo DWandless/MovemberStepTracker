@@ -265,7 +265,12 @@ with col_left:
         generated_codes = []
         existing_codes = set()
         for challenge in Challenges:
-            existing_codes.update(Challenges[challenge]["Codes"])
+            # Extract hash values from Codes (handle both dict and string formats)
+            for code_entry in Challenges[challenge]["Codes"]:
+                if isinstance(code_entry, dict):
+                    existing_codes.add(code_entry["hash"])
+                else:
+                    existing_codes.add(code_entry)
         
         for _ in range(num_codes):
             code = generate_claim_code(Challenges, existing_codes)
