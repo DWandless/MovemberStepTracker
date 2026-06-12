@@ -196,9 +196,9 @@ with tab1:
                     
                     submission_count = len(daily_submissions.data) if daily_submissions.data else 0
                     
-                    if submission_count >= 10:
-                        st.error("Daily submission limit reached (10 per day). Please try again tomorrow.")
-                        log_audit_event("RATE_LIMIT_EXCEEDED", user_email, f"Daily limit: {submission_count}/10")
+                    if submission_count >= 15:
+                        st.error("Daily submission limit reached (15 per day). Please try again tomorrow.")
+                        log_audit_event("RATE_LIMIT_EXCEEDED", user_email, f"Daily limit: {submission_count}/15")
                         st.stop()
                 except Exception as e:
                     logging.error(f"Error checking daily submission limit: {e}")
