@@ -135,12 +135,16 @@ with tab1:
     
     with st.form("step_submission_form", clear_on_submit=True):
         date_col, step_col = st.columns(2)
-        with date_col: 
+        with date_col:
+            min_date = date(2026, 5, 14)
+            max_date = date(2026, 6, 11)
+            # Ensure default value is within valid range
+            default_date = min(max(date.today(), min_date), max_date)
             step_date = st.date_input(
                 "Date",
-                min_value=date(2026, 5, 14),
-                max_value=date(2026, 6, 11),
-                value=date.today(),
+                min_value=min_date,
+                max_value=max_date,
+                value=default_date,
                 help="Select the date when you recorded these steps. Valid dates: 14/05/26 to 11/06/26."
             )
         with step_col: 
